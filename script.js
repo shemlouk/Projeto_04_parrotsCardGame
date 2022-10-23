@@ -11,6 +11,7 @@ const cardImages = [
 
 const cartas = [];
 const jogada = [];
+const jogadas = [];
 let qtdCartas = 0;
 let cliques = 0;
 
@@ -21,9 +22,68 @@ iniciaJogo();
 //=====================================================================
 
 function iniciaJogo() {
-  reset();
   perguntaQtd();
   criaCartas();
+  adicionaEventoDeClique();
+}
+
+//---------------------------------------------------------------------
+
+function adicionaEventoDeClique() {
+  cartas.forEach((carta) => {
+    carta.addEventListener("click", (e) => {
+      const cartaClicada = e.currentTarget;
+      if (!jogadas.includes(cartaClicada)) {
+        viraCarta(cartaClicada);
+        jogada.push(cartaClicada);
+        cliques++;
+      }
+      if (jogada.length === 2) validaJogada();
+      if (jogadas.length == qtdCartas) setTimeout(fimDeJogo, 500);
+    });
+  });
+}
+
+function validaJogada() {
+  const primeiraCarta = jogada[0];
+  const segundaCarta = jogada[1];
+  const valorPrimeiraCarta = jogada[0].getAttribute("data-image");
+  const valorSegundaCarta = jogada[1].getAttribute("data-image");
+
+  if (valorPrimeiraCarta === valorSegundaCarta) {
+    jogadas.push(...jogada);
+    jogada.splice(0, 2);
+  } else {
+    setTimeout(() => {
+      viraCarta(primeiraCarta);
+      viraCarta(segundaCarta);
+      jogada.splice(0, 2);
+    }, 1000);
+  }
+}
+
+function viraCarta(card) {
+  card.classList.toggle("clicado");
+  const value = card.getAttribute("data-image");
+  const image = card.querySelector(".card__image");
+  image.classList.toggle(value);
+}
+
+function fimDeJogo() {
+  alert(`Você venceu em ${cliques} jogadas!`);
+  pergutaJogarNovamente();
+}
+
+function pergutaJogarNovamente() {
+  const jogarNovamente = prompt("Deseja jogar novamente?");
+  if (jogarNovamente === "sim") {
+    reset();
+    iniciaJogo();
+  } else if (jogarNovamente === "não") {
+    //do something
+  } else {
+    pergutaJogarNovamente();
+  }
 }
 
 //---------------------------------------------------------------------
@@ -74,4 +134,7 @@ function validaQtd(qtd) {
 function reset() {
   qtdCartas = 0;
   cartas.splice(0, cartas.length);
+  jogadas.splice(0, jogadas.length);
+  cliques = 0;
+  jogo.innerHTML = "";
 }
