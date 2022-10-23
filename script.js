@@ -30,23 +30,25 @@ let bloqueiaCartas = false;
 
 //=====================================================================
 
-iniciaJogo();
+/* Função principal */
 
-//=====================================================================
+iniciaJogo();
 
 function iniciaJogo() {
   perguntaQtd();
-  const startTime = new Date().getTime();
-  iniciaTimer(startTime);
+  iniciaTimer();
   criaCartas();
   adicionaEventoDeClique();
 }
 
 //---------------------------------------------------------------------
 
-function iniciaTimer(inicio) {
+/* FUNÇÃO - Timer */
+
+function iniciaTimer() {
+  const startTime = new Date().getTime();
   const contador = setInterval(() => {
-    const diferenca = new Date().getTime() - inicio;
+    const diferenca = new Date().getTime() - startTime;
     tempo = new Date(diferenca).toISOString().substr(14, 5);
     timer.innerHTML = tempo;
     intervalID = contador;
@@ -54,18 +56,25 @@ function iniciaTimer(inicio) {
 }
 //---------------------------------------------------------------------
 
+/* FUNÇÃO - Clique nas cartas */
+
 function adicionaEventoDeClique() {
   cartas.forEach((carta) => {
     carta.addEventListener("click", (e) => {
+      // Define a carta clicada
       const cartaClicada = e.currentTarget;
+      // Se a carta clicada não estiver já virada:
       if (!jogadas.includes(cartaClicada) && !jogada.includes(cartaClicada)) {
         gameSounds.cardFlip.play();
         viraCarta(cartaClicada);
         jogada.push(cartaClicada);
         cliques++;
       }
+      // Se a última carta adicionada na jogada completa ela:
       if (jogada.length === 2) validaJogada();
+      // Se a última carta adicionada nas jogadas completa o jogo:
       if (jogadas.length == qtdCartas && !bloqueiaCartas) {
+        //Adiciona animação de pulo das cartas em times diferentes
         let time = 0;
         cartas.forEach((carta) => {
           setTimeout(() => {
@@ -73,6 +82,7 @@ function adicionaEventoDeClique() {
           }, time);
           time += 50;
         });
+        //Realiza procedimentos de fim de jogo
         gameSounds.victory.play();
         setTimeout(fimDeJogo, 1500);
       }
@@ -80,12 +90,15 @@ function adicionaEventoDeClique() {
   });
 }
 
+/* FUNÇÃO - Valida a jogada das cartas */
+
 function validaJogada() {
   const primeiraCarta = jogada[0];
   const segundaCarta = jogada[1];
   const valorPrimeiraCarta = jogada[0].getAttribute("data-image");
   const valorSegundaCarta = jogada[1].getAttribute("data-image");
 
+  // Se as cartas derem match:
   if (valorPrimeiraCarta === valorSegundaCarta) {
     growCartas(primeiraCarta, segundaCarta);
     gameSounds.match.play();
@@ -94,7 +107,10 @@ function validaJogada() {
     setTimeout(() => {
       growCartas(primeiraCarta, segundaCarta);
     }, 1000);
-  } else {
+  }
+
+  // Se as cartas NÃO derem match:
+  else {
     setTimeout(() => {
       gameSounds.fail.play();
       shakeCartas(primeiraCarta, segundaCarta);
@@ -107,6 +123,8 @@ function validaJogada() {
     }, 200);
   }
 }
+
+/* FUNÇÕES - Animações */
 
 function shakeCartas(carta1, carta2) {
   carta1.classList.toggle("shake");
@@ -124,6 +142,8 @@ function viraCarta(card) {
   const image = card.querySelector(".card__image");
   image.classList.toggle(value);
 }
+
+/* FUNÇÕES - Fim de jogo */
 
 function fimDeJogo() {
   alert(`Você venceu em ${cliques} jogadas!\nTempo total de jogo: ${tempo}`);
@@ -144,6 +164,8 @@ function pergutaJogarNovamente() {
 }
 
 //---------------------------------------------------------------------
+
+/* FUNÇÕES - Cria as cartas e as coloca no jogo */
 
 function criaCartas() {
   //Cria as cartas
@@ -177,6 +199,8 @@ function criaCarta() {
 
 //---------------------------------------------------------------------
 
+/* FUNÇÕES - Pergunta a quantidade e valida ela */
+
 function perguntaQtd() {
   qtdCartas = prompt("Escolha de 4 à 14 cartas para jogar (somente pares!):");
   if (!validaQtd(qtdCartas)) perguntaQtd();
@@ -187,6 +211,8 @@ function validaQtd(qtd) {
 }
 
 //---------------------------------------------------------------------
+
+/* FUNÇÃO - Reset do jogo */
 
 function reset() {
   qtdCartas = 0;
