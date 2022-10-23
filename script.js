@@ -64,14 +64,18 @@ function adicionaEventoDeClique() {
       // Define a carta clicada
       const cartaClicada = e.currentTarget;
       // Se a carta clicada não estiver já virada:
-      if (!jogadas.includes(cartaClicada) && !jogada.includes(cartaClicada)) {
+      if (
+        !jogadas.includes(cartaClicada) &&
+        !jogada.includes(cartaClicada) &&
+        !bloqueiaCartas
+      ) {
         gameSounds.cardFlip.play();
         viraCarta(cartaClicada);
         jogada.push(cartaClicada);
         cliques++;
       }
       // Se a última carta adicionada na jogada completa ela:
-      if (jogada.length === 2) validaJogada();
+      if (jogada.length === 2 && !bloqueiaCartas) validaJogada();
       // Se a última carta adicionada nas jogadas completa o jogo:
       if (jogadas.length == qtdCartas && !bloqueiaCartas) {
         //Adiciona animação de pulo das cartas em times diferentes
@@ -111,6 +115,7 @@ function validaJogada() {
 
   // Se as cartas NÃO derem match:
   else {
+    bloqueiaCartas = true;
     setTimeout(() => {
       gameSounds.fail.play();
       shakeCartas(primeiraCarta, segundaCarta);
@@ -119,6 +124,7 @@ function validaJogada() {
         viraCarta(primeiraCarta);
         viraCarta(segundaCarta);
         jogada.splice(0, 2);
+        bloqueiaCartas = false;
       }, 1000);
     }, 200);
   }
