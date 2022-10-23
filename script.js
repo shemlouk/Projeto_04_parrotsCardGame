@@ -74,7 +74,7 @@ function adicionaEventoDeClique() {
           time += 50;
         });
         gameSounds.victory.play();
-        setTimeout(fimDeJogo, 1000);
+        setTimeout(fimDeJogo, 1500);
       }
     });
   });
@@ -87,9 +87,13 @@ function validaJogada() {
   const valorSegundaCarta = jogada[1].getAttribute("data-image");
 
   if (valorPrimeiraCarta === valorSegundaCarta) {
+    growCartas(primeiraCarta, segundaCarta);
     gameSounds.match.play();
     jogadas.push(...jogada);
     jogada.splice(0, 2);
+    setTimeout(() => {
+      growCartas(primeiraCarta, segundaCarta);
+    }, 1000);
   } else {
     setTimeout(() => {
       gameSounds.fail.play();
@@ -107,6 +111,11 @@ function validaJogada() {
 function shakeCartas(carta1, carta2) {
   carta1.classList.toggle("shake");
   carta2.classList.toggle("shake");
+}
+
+function growCartas(carta1, carta2) {
+  carta1.classList.toggle("grow");
+  carta2.classList.toggle("grow");
 }
 
 function viraCarta(card) {
