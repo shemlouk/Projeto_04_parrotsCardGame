@@ -84,6 +84,7 @@ body {
   width: 100px;
   height: 100px;
   background: url(./images/back.png) center/cover no-repeat;
+  transition: all .1s;
 }
 
 /* || JOGO - Cartas || */
