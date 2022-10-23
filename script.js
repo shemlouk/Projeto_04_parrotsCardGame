@@ -1,4 +1,5 @@
 const jogo = document.querySelector(".jogo");
+const timer = document.querySelector(".timer");
 const cardImages = [
   "bobross",
   "explody",
@@ -9,11 +10,23 @@ const cardImages = [
   "unicorn",
 ];
 
+const gameSounds = {
+  cardFlip: new Audio("./assets/audio/card-flip.mp3"),
+  fail: new Audio("./assets/audio/fail.mp3"),
+  match: new Audio("./assets/audio/win.mp3"),
+  victory: new Audio("./assets/audio/victory.mp3"),
+};
+
+//---------------------------------------------------------------------
+
 const cartas = [];
 const jogada = [];
 const jogadas = [];
 let qtdCartas = 0;
 let cliques = 0;
+let tempo = 0;
+let intervalID = null;
+let bloqueiaCartas = false;
 
 //=====================================================================
 
@@ -23,23 +36,46 @@ iniciaJogo();
 
 function iniciaJogo() {
   perguntaQtd();
+  const startTime = new Date().getTime();
+  iniciaTimer(startTime);
   criaCartas();
   adicionaEventoDeClique();
 }
 
 //---------------------------------------------------------------------
 
+function iniciaTimer(inicio) {
+  const contador = setInterval(() => {
+    const diferenca = new Date().getTime() - inicio;
+    tempo = new Date(diferenca).toISOString().substr(14, 5);
+    timer.innerHTML = tempo;
+    intervalID = contador;
+  }, 1000);
+}
+//---------------------------------------------------------------------
+
 function adicionaEventoDeClique() {
   cartas.forEach((carta) => {
     carta.addEventListener("click", (e) => {
       const cartaClicada = e.currentTarget;
-      if (!jogadas.includes(cartaClicada)) {
+      if (!jogadas.includes(cartaClicada) && !jogada.includes(cartaClicada)) {
+        gameSounds.cardFlip.play();
         viraCarta(cartaClicada);
         jogada.push(cartaClicada);
         cliques++;
       }
       if (jogada.length === 2) validaJogada();
-      if (jogadas.length == qtdCartas) setTimeout(fimDeJogo, 500);
+      if (jogadas.length == qtdCartas && !bloqueiaCartas) {
+        let time = 0;
+        cartas.forEach((carta) => {
+          setTimeout(() => {
+            carta.classList.add("jump");
+          }, time);
+          time += 50;
+        });
+        gameSounds.victory.play();
+        setTimeout(fimDeJogo, 1000);
+      }
     });
   });
 }
@@ -51,15 +87,26 @@ function validaJogada() {
   const valorSegundaCarta = jogada[1].getAttribute("data-image");
 
   if (valorPrimeiraCarta === valorSegundaCarta) {
+    gameSounds.match.play();
     jogadas.push(...jogada);
     jogada.splice(0, 2);
   } else {
     setTimeout(() => {
-      viraCarta(primeiraCarta);
-      viraCarta(segundaCarta);
-      jogada.splice(0, 2);
-    }, 1000);
+      gameSounds.fail.play();
+      shakeCartas(primeiraCarta, segundaCarta);
+      setTimeout(() => {
+        shakeCartas(primeiraCarta, segundaCarta);
+        viraCarta(primeiraCarta);
+        viraCarta(segundaCarta);
+        jogada.splice(0, 2);
+      }, 1000);
+    }, 200);
   }
+}
+
+function shakeCartas(carta1, carta2) {
+  carta1.classList.toggle("shake");
+  carta2.classList.toggle("shake");
 }
 
 function viraCarta(card) {
@@ -70,7 +117,7 @@ function viraCarta(card) {
 }
 
 function fimDeJogo() {
-  alert(`Você venceu em ${cliques} jogadas!`);
+  alert(`Você venceu em ${cliques} jogadas!\nTempo total de jogo: ${tempo}`);
   pergutaJogarNovamente();
 }
 
@@ -80,7 +127,8 @@ function pergutaJogarNovamente() {
     reset();
     iniciaJogo();
   } else if (jogarNovamente === "não") {
-    //do something
+    clearInterval(intervalID);
+    bloqueiaCartas = true;
   } else {
     pergutaJogarNovamente();
   }
@@ -137,4 +185,7 @@ function reset() {
   jogadas.splice(0, jogadas.length);
   cliques = 0;
   jogo.innerHTML = "";
+  tempo = 0;
+  timer.innerHTML = "00:00";
+  clearInterval(intervalID);
 }
