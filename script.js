@@ -80,15 +80,18 @@ function adicionaEventoDeClique() {
       if (jogadas.length == qtdCartas && !bloqueiaCartas) {
         //Adiciona animação de pulo das cartas em times diferentes
         let time = 0;
-        cartas.forEach((carta) => {
-          setTimeout(() => {
-            carta.classList.add("jump");
-          }, time);
-          time += 50;
-        });
+        setTimeout(() => {
+          cartas.forEach((carta) => {
+            setTimeout(() => {
+              carta.classList.add("jump");
+            }, time);
+            time += 50;
+          });
+        }, 1200);
+
         //Realiza procedimentos de fim de jogo
         gameSounds.victory.play();
-        setTimeout(fimDeJogo, 1500);
+        setTimeout(fimDeJogo, 2000);
       }
     });
   });
@@ -104,13 +107,15 @@ function validaJogada() {
 
   // Se as cartas derem match:
   if (valorPrimeiraCarta === valorSegundaCarta) {
-    growCartas(primeiraCarta, segundaCarta);
+    setTimeout(() => {
+      growCartas(primeiraCarta, segundaCarta);
+    }, 400);
     gameSounds.match.play();
     jogadas.push(...jogada);
     jogada.splice(0, 2);
     setTimeout(() => {
       growCartas(primeiraCarta, segundaCarta);
-    }, 1000);
+    }, 1400);
   }
 
   // Se as cartas NÃO derem match:
